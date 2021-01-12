@@ -1,10 +1,9 @@
 from flask import Flask
-from flask import request
+from flask import request, jsonify
 from logic import do
+from classes.User import User
 
 app = Flask(__name__)
-api = Api(app=app, doc='/docs', version='1.0.0-oas3', title='TEST APP API',
-          description='TEST APP API')
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -20,6 +19,14 @@ def hello_world():
 def hello_world2(name):
     if request.method == 'GET':
         return do(name)
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        user = User()
+        user.from_dict(data)
+        user.name = do(user.name)
+        response = jsonify(user.to_dict())
+        return response
+        # return do(request.json['name'])
     return 'Hello World!'
 
 # request.form - тело запроса в пост
@@ -27,3 +34,4 @@ def hello_world2(name):
 
 if __name__ == '__main__':
     app.run()
+    # app.run(host="0.0.0.0")
